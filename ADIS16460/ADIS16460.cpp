@@ -7,7 +7,7 @@
 // 
 //  This library provides all the functions necessary to interface the ADIS16460 IMU with a 
 //  32-Bit Teensy development board. Functions for SPI configuration, reads and writes,
-//  and scaling are included. This library may be used for the entire ADIS1646X family of devices 
+//  and scaling are included. This library may be used for the entire ADIS1646x family of devices 
 //  with some modification.
 //
 //  This example is free software. You can redistribute it and/or modify it
@@ -155,13 +155,7 @@ int ADIS16460::regWrite(uint8_t regAddr, int16_t regData) {
 /////////////////////////////////////////////////////////////////////////////////////////
 float ADIS16460::accelScale(int16_t sensorData)
 {
-  int signedData = 0;
-  int isNeg = sensorData & 0x8000;
-  if (isNeg == 0x8000) // If the number is negative, scale and sign the output
-    signedData = sensorData - 0xFFFF;
-  else
-    signedData = sensorData; // Else return the raw number
-  float finalData = signedData * 0.25; // Multiply by accel sensitivity (25 mg/LSB)
+  float finalData = sensorData * 0.00025; // Multiply by accel sensitivity (25 mg/LSB)
   return finalData;
 }
 
@@ -173,13 +167,7 @@ float ADIS16460::accelScale(int16_t sensorData)
 /////////////////////////////////////////////////////////////////////////////////////////
 float ADIS16460::gyroScale(int16_t sensorData)
 {
-  int signedData = 0;
-  int isNeg = sensorData & 0x8000;
-  if (isNeg == 0x8000) // If the number is negative, scale and sign the output
-    signedData = sensorData - 0xFFFF;
-  else
-    signedData = sensorData;
-  float finalData = signedData * 0.005; // Multiply by gyro sensitivity (0.005 dps/LSB)
+  float finalData = sensorData * 0.005;
   return finalData;
 }
 
@@ -210,13 +198,7 @@ float ADIS16460::tempScale(int16_t sensorData)
 /////////////////////////////////////////////////////////////////////////////////////////
 float ADIS16460::deltaAngleScale(int16_t sensorData)
 {
-  int signedData = 0;
-  int isNeg = sensorData & 0x8000;
-  if (isNeg == 0x8000) // If the number is negative, scale and sign the output
-    signedData = sensorData - 0xFFFF;
-  else
-    signedData = sensorData;
-  float finalData = signedData * 0.005; // Multiply by delta angle scale (0.005 degrees/LSB)
+  float finalData = sensorData * 0.005; // Multiply by delta angle scale (0.005 degrees/LSB)
   return finalData;
 }
 
@@ -228,12 +210,6 @@ float ADIS16460::deltaAngleScale(int16_t sensorData)
 /////////////////////////////////////////////////////////////////////////////////////////
 float ADIS16460::deltaVelocityScale(int16_t sensorData)
 {
-  int signedData = 0;
-  int isNeg = sensorData & 0x8000;
-  if (isNeg == 0x8000) // If the number is negative, scale and sign the output
-    signedData = sensorData - 0xFFFF;
-  else
-    signedData = sensorData;
-  float finalData = signedData * 2.5; // Multiply by velocity scale (2.5 mm/sec/LSB)
+  float finalData = sensorData * 2.5; // Multiply by velocity scale (2.5 mm/sec/LSB)
   return finalData;
 }
