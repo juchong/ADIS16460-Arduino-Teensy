@@ -146,6 +146,62 @@ int ADIS16460::regWrite(uint8_t regAddr, int16_t regData) {
   return(1);
 }
 
+int16_t * ADIS16460::burstRead(uint8_t regAddr) {
+	uint8_t burstdata[20];
+	int16_t burstwords[10];
+	// Trigger Burst Read
+	digitalWrite(_CS, LOW);
+	SPI.transfer(0x3E);
+	SPI.transfer(0x00);
+	// Read Burst Data
+	burstdata[0] = SPI.transfer(0x00); //DIAG_STAT
+	burstdata[1] = SPI.transfer(0x00);
+	burstdata[2] = SPI.transfer(0x00); //XGYRO_OUT
+	burstdata[3] = SPI.transfer(0x00);
+	burstdata[4] = SPI.transfer(0x00); //YGYRO_OUT
+	burstdata[5] = SPI.transfer(0x00);
+	burstdata[6] = SPI.transfer(0x00); //ZGYRO_OUT
+	burstdata[7] = SPI.transfer(0x00);
+	burstdata[8] = SPI.transfer(0x00); //XACCEL_OUT
+	burstdata[9] = SPI.transfer(0x00);
+	burstdata[10] = SPI.transfer(0x00); //YACCEL_OUT
+	burstdata[11] = SPI.transfer(0x00);
+	burstdata[12] = SPI.transfer(0x00); //ZACCEL_OUT
+	burstdata[13] = SPI.transfer(0x00);
+	burstdata[14] = SPI.transfer(0x00); //TEMP_OUT
+	burstdata[15] = SPI.transfer(0x00);
+	burstdata[16] = SPI.transfer(0x00); //SMPL_CNTR
+	burstdata[17] = SPI.transfer(0x00);
+	burstdata[18] = SPI.transfer(0x00); //CHECKSUM
+	burstdata[19] = SPI.transfer(0x00);
+	digitalWrite(_CS, HIGH);
+	// Join bytes into words
+	burstwords[0] = ((burstdata[1] << 8) | burstdata[0]); //DIAG_STAT
+	burstwords[1] = ((burstdata[3] << 8) | burstdata[2]); //XGYRO
+	burstwords[2] = ((burstdata[5] << 8) | burstdata[4]); //YGYRO
+	burstwords[3] = ((burstdata[7] << 8) | burstdata[6]); //ZGYRO
+	burstwords[4] = ((burstdata[9] << 8) | burstdata[8]); //XACCEL
+	burstwords[5] = ((burstdata[11] << 8) | burstdata[10]); //YACCEL
+	burstwords[6] = ((burstdata[13] << 8) | burstdata[12]); //ZACCEL
+	burstwords[7] = ((burstdata[15] << 8) | burstdata[14]); //TEMP_OUT
+	burstwords[8] = ((burstdata[17] << 8) | burstdata[16]); //SMPL_CNTR
+	burstwords[9] = ((burstdata[19] << 8) | burstdata[18]); //CHECKSUM
+
+	return burstwords;
+
+}
+
+int ADIS16460::checksum(int16_t * burstArray) {
+	int s = 0;
+	for (int i = 0; i < 10; i++)
+	{
+	    s += burstArray[i] & 0xFF;
+	    s += (burstArray[i + 1] >> 8);
+	}
+
+	return s;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // Converts accelerometer data output from the regRead() function and returns
 // acceleration in mg's

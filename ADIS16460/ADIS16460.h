@@ -94,6 +94,10 @@ public:
   //Write register
   int regWrite(uint8_t regAddr, int16_t regData);
 
+  int16_t * burstRead(uint8_t regAddr);
+
+  int checksum(int16_t * burstArray);
+
   //Scale accelerator data
   float accelScale(int16_t sensorData);
 
