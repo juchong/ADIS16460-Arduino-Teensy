@@ -1,25 +1,33 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  November 2015
+//  September 2016
 //  Author: Juan Jose Chong <juan.chong@analog.com>
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  ADIS16460.cpp
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 //  This library provides all the functions necessary to interface the ADIS16460 IMU with a 
-//  32-Bit Teensy development board. Functions for SPI configuration, reads and writes,
-//  and scaling are included. This library may be used for the entire ADIS1646x family of devices 
+//  PJRC 32-Bit Teensy 3.2 Development Board. Functions for SPI configuration, reads and writes,
+//  and scaling are included. This library may be used for the entire ADIS1646X family of devices 
 //  with some modification.
 //
-//  This example is free software. You can redistribute it and/or modify it
-//  under the terms of the GNU Lesser Public License as published by the Free Software
-//  Foundation, either version 3 of the License, or any later version.
+//  Permission is hereby granted, free of charge, to any person obtaining
+//  a copy of this software and associated documentation files (the
+//  "Software"), to deal in the Software without restriction, including
+//  without limitation the rights to use, copy, modify, merge, publish,
+//  distribute, sublicense, and/or sell copies of the Software, and to
+//  permit persons to whom the Software is furnished to do so, subject to
+//  the following conditions:
 //
-//  This example is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
-//  FOR A PARTICULAR PURPOSE.  See the GNU Lesser Public License for more details.
+//  The above copyright notice and this permission notice shall be
+//  included in all copies or substantial portions of the Software.
 //
-//  You should have received a copy of the GNU Lesser Public License along with 
-//  this example.  If not, see <http://www.gnu.org/licenses/>.
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+//  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+//  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+//  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+//  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+//  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +81,7 @@ int ADIS16460::resetDUT(uint8_t ms) {
 // Returns 1 when complete.
 ////////////////////////////////////////////////////////////////////////////
 int ADIS16460::configSPI() {
-  SPISettings IMUSettings(2000000, MSBFIRST, SPI_MODE3);
+  SPISettings IMUSettings(1000000, MSBFIRST, SPI_MODE3);
   SPI.beginTransaction(IMUSettings);
   return(1);
 }
@@ -146,9 +154,15 @@ int ADIS16460::regWrite(uint8_t regAddr, int16_t regData) {
   return(1);
 }
 
-int16_t * ADIS16460::burstRead(uint8_t regAddr) {
+////////////////////////////////////////////////////////////////////////////
+// Intiates a burst read from the sensor.
+// Returns a pointer to an array of sensor data. 
+////////////////////////////////////////////////////////////////////////////
+// No inputs required.
+////////////////////////////////////////////////////////////////////////////
+int16_t *ADIS16460::burstRead(void) {
 	uint8_t burstdata[20];
-	int16_t burstwords[10];
+	static int16_t burstwords[10];
 	// Trigger Burst Read
 	digitalWrite(_CS, LOW);
 	SPI.transfer(0x3E);
@@ -175,28 +189,36 @@ int16_t * ADIS16460::burstRead(uint8_t regAddr) {
 	burstdata[18] = SPI.transfer(0x00); //CHECKSUM
 	burstdata[19] = SPI.transfer(0x00);
 	digitalWrite(_CS, HIGH);
-	// Join bytes into words
-	burstwords[0] = ((burstdata[1] << 8) | burstdata[0]); //DIAG_STAT
-	burstwords[1] = ((burstdata[3] << 8) | burstdata[2]); //XGYRO
-	burstwords[2] = ((burstdata[5] << 8) | burstdata[4]); //YGYRO
-	burstwords[3] = ((burstdata[7] << 8) | burstdata[6]); //ZGYRO
-	burstwords[4] = ((burstdata[9] << 8) | burstdata[8]); //XACCEL
-	burstwords[5] = ((burstdata[11] << 8) | burstdata[10]); //YACCEL
-	burstwords[6] = ((burstdata[13] << 8) | burstdata[12]); //ZACCEL
-	burstwords[7] = ((burstdata[15] << 8) | burstdata[14]); //TEMP_OUT
-	burstwords[8] = ((burstdata[17] << 8) | burstdata[16]); //SMPL_CNTR
-	burstwords[9] = ((burstdata[19] << 8) | burstdata[18]); //CHECKSUM
 
-	return burstwords;
+	// Join bytes into words
+	burstwords[0] = ((burstdata[0] << 8) | (burstdata[1] & 0xFF)); //DIAG_STAT
+	burstwords[1] = ((burstdata[2] << 8) | (burstdata[3] & 0xFF)); //XGYRO
+	burstwords[2] = ((burstdata[4] << 8) | (burstdata[5] & 0xFF)); //YGYRO
+	burstwords[3] = ((burstdata[6] << 8) | (burstdata[7] & 0xFF)); //ZGYRO
+	burstwords[4] = ((burstdata[8] << 8) | (burstdata[9] & 0xFF)); //XACCEL
+	burstwords[5] = ((burstdata[10] << 8) | (burstdata[11] & 0xFF)); //YACCEL
+	burstwords[6] = ((burstdata[12] << 8) | (burstdata[13] & 0xFF)); //ZACCEL
+	burstwords[7] = ((burstdata[14] << 8) | (burstdata[15] & 0xFF)); //TEMP_OUT
+	burstwords[8] = ((burstdata[16] << 8) | (burstdata[17] & 0xFF)); //SMPL_CNTR
+	burstwords[9] = ((burstdata[18] << 8) | (burstdata[19] & 0xFF)); //CHECKSUM
+
+  return burstwords;
 
 }
 
-int ADIS16460::checksum(int16_t * burstArray) {
-	int s = 0;
-	for (int i = 0; i < 10; i++)
+////////////////////////////////////////////////////////////////////////////
+// Calculates checksum based on burst data.
+// Returns the calculated checksum.
+////////////////////////////////////////////////////////////////////////////
+// *burstArray - array of burst data
+// return - (int16_t) signed calculated checksum
+////////////////////////////////////////////////////////////////////////////
+int16_t ADIS16460::checksum(int16_t * burstArray) {
+	int16_t s = 0;
+	for (int i = 0; i < 9; i++) // Checksum value is not part of the sum!!
 	{
-	    s += burstArray[i] & 0xFF;
-	    s += (burstArray[i + 1] >> 8);
+	    s += (burstArray[i] & 0xFF); // Count lower byte
+      s += ((burstArray[i] >> 8) & 0xFF); // Count upper byte
 	}
 
 	return s;

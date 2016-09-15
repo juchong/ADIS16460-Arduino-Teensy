@@ -1,25 +1,33 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-//  November 2015
+//  September 2016
 //  Author: Juan Jose Chong <juan.chong@analog.com>
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 //  ADIS16460.h
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // 
-//  This library provides all the functions necessary to interface the ADIS16460 IMU with an 
-//  8-Bit Atmel-based Arduino development board. Functions for SPI configuration, reads and writes,
+//  This library provides all the functions necessary to interface the ADIS16460 IMU with a 
+//  PJRC 32-Bit Teensy 3.2 Development Board. Functions for SPI configuration, reads and writes,
 //  and scaling are included. This library may be used for the entire ADIS1646X family of devices 
 //  with some modification.
 //
-//  This example is free software. You can redistribute it and/or modify it
-//  under the terms of the GNU Lesser Public License as published by the Free Software
-//  Foundation, either version 3 of the License, or any later version.
+//  Permission is hereby granted, free of charge, to any person obtaining
+//  a copy of this software and associated documentation files (the
+//  "Software"), to deal in the Software without restriction, including
+//  without limitation the rights to use, copy, modify, merge, publish,
+//  distribute, sublicense, and/or sell copies of the Software, and to
+//  permit persons to whom the Software is furnished to do so, subject to
+//  the following conditions:
 //
-//  This example is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
-//  FOR A PARTICULAR PURPOSE.  See the GNU Lesser Public License for more details.
+//  The above copyright notice and this permission notice shall be
+//  included in all copies or substantial portions of the Software.
 //
-//  You should have received a copy of the GNU Lesser Public License along with 
-//  this example.  If not, see <http://www.gnu.org/licenses/>.
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+//  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+//  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+//  LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+//  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+//  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,53 +79,54 @@
 #define CODE_CRC    0x66  //Code memory CRC values
 
 // ADIS16460 class definition
-class ADIS16460{
+class ADIS16460 {
 
 public:
   // Constructor with configurable CS, data ready, and HW reset pins
 
-  //ADIS16460(int CS, int DR, int RST, int MOSI, int MISO, int CLK);
+  // ADIS16460(int CS, int DR, int RST, int MOSI, int MISO, int CLK);
   ADIS16460(int CS, int DR, int RST);
 
-  //Destructor
+  // Destructor
   ~ADIS16460();
 
-  //Performs hardware reset by sending pin 8 low on the DUT for 2 seconds
+  // Performs hardware reset by sending pin 8 low on the DUT for 2 seconds
   int resetDUT(uint8_t ms);
 
-  //Sets SPI bit order, clock divider, and data mode
+  // Sets SPI bit order, clock divider, and data mode
   int configSPI();
 
-  //Read sensor
+  // Read single register from sensor
   int16_t regRead(uint8_t regAddr);
 
-  //Write register
+  // Write register
   int regWrite(uint8_t regAddr, int16_t regData);
 
-  int16_t * burstRead(uint8_t regAddr);
+  // Read sensor data using a burst read
+  int16_t *burstRead(void);
 
-  int checksum(int16_t * burstArray);
+  // Verify checksum
+  int16_t checksum(int16_t * burstArray);
 
-  //Scale accelerator data
+  // Scale accelerator data
   float accelScale(int16_t sensorData);
 
-  //Scale gyro data
+  // Scale gyro data
   float gyroScale(int16_t sensorData);
 
-  //Scale temperature data
+  // Scale temperature data
   float tempScale(int16_t sensorData);
 
-  //Scale delta angle data
+  // Scale delta angle data
   float deltaAngleScale(int16_t sensorData);
 
-  //Scale delta velocity
+  // Scale delta velocity
   float deltaVelocityScale(int16_t sensorData);
 
 private:
-  //Variables to store hardware pin assignments
+  // Variables to store hardware pin assignments
   int _CS;
   int _DR;
   int _RST;
 
 };
-
