@@ -118,94 +118,94 @@ void loop()
 {
     printCounter ++;
     if (printCounter >= 200000) // Delay for writing data to the serial port
-        {
-            detachInterrupt(2); //Detach interrupt to avoid overwriting data
-            scaleData(); // Scale data acquired from the IMU
-            burstChecksum = IMU.checksum(burstData); // Calculate checksum based on data array
+    {
+        detachInterrupt(2); //Detach interrupt to avoid overwriting data
+        scaleData(); // Scale data acquired from the IMU
+        burstChecksum = IMU.checksum(burstData); // Calculate checksum based on data array
 
-            //Clear the serial terminal and reset cursor
-            //Only works on supported serial terminal programs (Putty)
-            Serial.print("\033[2J");
-            Serial.print("\033[H");
+        //Clear the serial terminal and reset cursor
+        //Only works on supported serial terminal programs (Putty)
+        Serial.print("\033[2J");
+        Serial.print("\033[H");
 
-            // Print header
-            Serial.println(" ");
-            Serial.println("ADIS16460 Teensy Burst Read Example Program");
-            Serial.println("Juan Chong - September 2016");
-            Serial.println(" ");
+        // Print header
+        Serial.println(" ");
+        Serial.println("ADIS16460 Teensy Burst Read Example Program");
+        Serial.println("Juan Chong - September 2016");
+        Serial.println(" ");
 
-            // Print control registers to the serial port
-            Serial.println("Control Registers");
-            Serial.print("MSC_CTRL: ");
-            Serial.println(MSC,HEX);
-            Serial.print("FLTR_CTRL: ");
-            Serial.println(FLTR,HEX);
-            Serial.print("DEC_RATE: ");
-            Serial.println(DECR,HEX);
-            Serial.println(" ");
-            Serial.println("Raw Output Registers");
-            
-            // Print scaled gyro data
-            Serial.print("XGYRO: ");
-            Serial.println(GXS);
-            Serial.print("YGYRO: ");
-            Serial.println(GYS);
-            Serial.print("ZGYRO: ");
-            Serial.println(GZS);
-          
-            // Print scaled accel data
-            Serial.print("XACCL: ");
-            Serial.println(AXS);
-            Serial.print("YACCL: ");
-            Serial.println(AYS);
-            Serial.print("ZACCL: ");
-            Serial.println(AZS);
-            Serial.println(" ");
+        // Print control registers to the serial port
+        Serial.println("Control Registers");
+        Serial.print("MSC_CTRL: ");
+        Serial.println(MSC,HEX);
+        Serial.print("FLTR_CTRL: ");
+        Serial.println(FLTR,HEX);
+        Serial.print("DEC_RATE: ");
+        Serial.println(DECR,HEX);
+        Serial.println(" ");
+        Serial.println("Raw Output Registers");
+        
+        // Print scaled gyro data
+        Serial.print("XGYRO: ");
+        Serial.println(GXS);
+        Serial.print("YGYRO: ");
+        Serial.println(GYS);
+        Serial.print("ZGYRO: ");
+        Serial.println(GZS);
+      
+        // Print scaled accel data
+        Serial.print("XACCL: ");
+        Serial.println(AXS);
+        Serial.print("YACCL: ");
+        Serial.println(AYS);
+        Serial.print("ZACCL: ");
+        Serial.println(AZS);
+        Serial.println(" ");
 
-            Serial.println("Status Registers");
+        Serial.println("Status Registers");
 
-            // Print Status Registers
-            Serial.print("DIAG_STAT: ");
-            Serial.println((*(burstData + 0)));
-            Serial.print("SMPL_CNTR: ");
-            Serial.println((*(burstData + 8)));
-            Serial.print("CHECKSUM: ");
-            Serial.println((*(burstData + 9)));
+        // Print Status Registers
+        Serial.print("DIAG_STAT: ");
+        Serial.println((*(burstData + 0)));
+        Serial.print("SMPL_CNTR: ");
+        Serial.println((*(burstData + 8)));
+        Serial.print("CHECKSUM: ");
+        Serial.println((*(burstData + 9)));
 
-            // Report if checksum is good or bad
-            Serial.print("CHECKSUM OK? ");
-            if (burstChecksum == *(burstData + 9)) 
-                Serial.println("YES");
-            else
-                Serial.println("NO");
-           
-            // Print scaled temp data
-            Serial.print("TEMP: ");
-            Serial.println(TEMPS);
+        // Report if checksum is good or bad
+        Serial.print("CHECKSUM OK? ");
+        if (burstChecksum == *(burstData + 9)) 
+            Serial.println("YES");
+        else
+            Serial.println("NO");
+       
+        // Print scaled temp data
+        Serial.print("TEMP: ");
+        Serial.println(TEMPS);
 
 #ifdef DEBUG 
-            // Print unscaled gyro data
-            Serial.print("XGYRO: ");
-            Serial.println((*(burstData + 1)));
-            Serial.print("YGYRO: ");
-            Serial.println((*(burstData + 2)));
-            Serial.print("ZGYRO: ");
-            Serial.println((*(burstData + 3)));
-          
-            // Print unscaled accel data
-            Serial.print("XACCL: ");
-            Serial.println((*(burstData + 4)));
-            Serial.print("YACCL: ");
-            Serial.println((*(burstData + 5)));
-            Serial.print("ZACCL: ");
-            Serial.println((*(burstData + 6)));
-            Serial.println(" ");
-           
-            // Print unscaled temp data
-            Serial.print("TEMP: ");
-            Serial.println((*(burstData + 7)));
+        // Print unscaled gyro data
+        Serial.print("XGYRO: ");
+        Serial.println((*(burstData + 1)));
+        Serial.print("YGYRO: ");
+        Serial.println((*(burstData + 2)));
+        Serial.print("ZGYRO: ");
+        Serial.println((*(burstData + 3)));
+      
+        // Print unscaled accel data
+        Serial.print("XACCL: ");
+        Serial.println((*(burstData + 4)));
+        Serial.print("YACCL: ");
+        Serial.println((*(burstData + 5)));
+        Serial.print("ZACCL: ");
+        Serial.println((*(burstData + 6)));
+        Serial.println(" ");
+       
+        // Print unscaled temp data
+        Serial.print("TEMP: ");
+        Serial.println((*(burstData + 7)));
 #endif
-            printCounter = 0;
-            attachInterrupt(2, grabData, RISING);
-        }
+        printCounter = 0;
+        attachInterrupt(2, grabData, RISING);
+    }
 }
