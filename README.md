@@ -43,3 +43,6 @@ If everything is working, you should see a screen like this:
 ![ADIS16460 Example PuTTY Output](https://raw.githubusercontent.com/juchong/ADIS16460-Arduino-Teensy/master/ADIS16460/images/burst_demo.PNG)
 
 The demo software will only update the screen ~2 times/second, but every sample is being captured by the interrupt service routine.
+
+A single burst frame should look like this:
+![ADIS16460 Burst Frame](https://raw.githubusercontent.com/juchong/ADIS16460-Arduino-Teensy/master/ADIS16460/images/burst_frame_capture.PNG)
