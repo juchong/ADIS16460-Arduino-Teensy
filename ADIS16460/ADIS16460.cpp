@@ -139,16 +139,16 @@ int ADIS16460::regWrite(uint8_t regAddr, int16_t regData) {
 
   // Write highWord to SPI bus
   digitalWrite(_CS, LOW); // Set CS low to enable device
-  SPI.transfer(highBytehighWord); // Write high byte from high word to SPI bus
-  SPI.transfer(lowBytehighWord); // Write low byte from high word to SPI bus
+  SPI.transfer(highBytelowWord); // Write high byte from low word to SPI bus
+  SPI.transfer(lowBytelowWord); // Write low byte from low word to SPI bus
   digitalWrite(_CS, HIGH); // Set CS high to disable device
 
   delayMicroseconds(40); // Delay to not violate read rate (16 us)
 
   // Write lowWord to SPI bus
   digitalWrite(_CS, LOW); // Set CS low to enable device
-  SPI.transfer(highBytelowWord); // Write high byte from low word to SPI bus
-  SPI.transfer(lowBytelowWord); // Write low byte from low word to SPI bus
+  SPI.transfer(highBytehighWord); // Write high byte from high word to SPI bus
+  SPI.transfer(lowBytehighWord); // Write low byte from high word to SPI bus
   digitalWrite(_CS, HIGH); // Set CS high to disable device
 
   return(1);
